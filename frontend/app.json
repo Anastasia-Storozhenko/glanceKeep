@@ -1,0 +1,92 @@
+{
+  "expo": {
+    "name": "GlanceKeep",
+    "slug": "glancekeep",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#E6F4FE"
+    },
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.glancekeep.app",
+       "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSSpeechRecognitionUsageDescription": "Speech recognition is used to record voice notes and search items.",
+        "NSCameraUsageDescription": "Camera access is needed to capture items.",
+        "NSPhotoLibraryUsageDescription": "Save captured items to gallery.",
+        "NSPhotoLibraryAddUsageDescription": "Add photos of items to your gallery.",
+        "NSLocationWhenInUseUsageDescription": "Location helps remember where items were placed."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.glancekeep.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-font",
+      "expo-splash-screen",
+      "expo-localization",
+      "expo-sqlite",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow GlanceKeep to access your camera to take photos.",
+          "microphonePermission": "Allow GlanceKeep to access your microphone while recording video."
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow GlanceKeep to access your photos.",
+          "savePhotosPermission": "Allow GlanceKeep to save photos.",
+          "granularPermissions": [
+            "photo"
+          ],
+          "isAccessMediaLocationEnabled": true
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Allow GlanceKeep to record voice notes.",
+          "recordAudioAndroid": true,
+          "enableBackgroundPlayback": false,
+          "enableBackgroundRecording": false
+        }
+      ],
+      "expo-image",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "glancekeep",
+          "organization": "lpnu-tm"
+        }
+      ]
+    ],
+    "extra": {
+      "featureFlags": {
+        "enablePhotoCapture": true,
+        "enableVoiceCapture": true,
+        "enableLocation": true
+      },
+      "eas": {
+        "projectId": "f4207ff5-50de-4bf5-b902-708ee42582ec"
+      }
+    }
+  }
+}

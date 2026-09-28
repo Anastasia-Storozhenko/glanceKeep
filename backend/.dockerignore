@@ -1,0 +1,13 @@
+.git
+.agents
+.codex
+.env
+.env.*
+!.env.example
+.phpunit.cache
+.phpunit.result.cache
+database/*.sqlite
+node_modules
+storage/logs/*
+tests
+vendor
