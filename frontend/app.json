@@ -68,6 +68,13 @@
           "enableBackgroundRecording": false
         }
       ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Allow GlanceKeep to record voice notes.",
+          "speechRecognitionPermission": "Allow GlanceKeep to transcribe voice notes."
+        }
+      ],
       "expo-image",
       [
         "@sentry/react-native/expo",
