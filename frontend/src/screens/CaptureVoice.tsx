@@ -38,7 +38,13 @@ type PermissionState = 'checking' | 'granted' | 'denied';
 const RECORDING_OPTIONS = {
   ...RecordingPresets.HIGH_QUALITY,
   directory: 'document' as const,
+  isMeteringEnabled: true,
 };
+
+const SPEECH_LEVEL_THRESHOLD_DB = -45;
+const SILENCE_LEVEL_THRESHOLD_DB = -50;
+const MIN_SPEECH_DURATION_MS = 400;
+const AUTO_STOP_SILENCE_DURATION_MS = 1600;
 
 const BAR_COUNT = 5;
 const GLOW_SIZE = 220;
@@ -187,6 +193,9 @@ export function CaptureVoice({ navigation }: CaptureVoiceProps) {
   const [error, setError] = useState<string | null>(null);
   const [partialTranscript, setPartialTranscript] = useState('');
   const finishRequestedRef = useRef(false);
+  const speechStartedAtRef = useRef<number | null>(null);
+  const speechDetectedRef = useRef(false);
+  const silenceStartedAtRef = useRef<number | null>(null);
 
   useSpeechRecognitionEvent('result', (event) => {
     const text = event.results?.[0]?.transcript;
@@ -288,6 +297,9 @@ export function CaptureVoice({ navigation }: CaptureVoiceProps) {
       });
       await audioRecorder.prepareToRecordAsync();
       finishRequestedRef.current = false;
+      speechStartedAtRef.current = null;
+      speechDetectedRef.current = false;
+      silenceStartedAtRef.current = null;
       audioRecorder.record();
 
       try {
@@ -367,6 +379,46 @@ export function CaptureVoice({ navigation }: CaptureVoiceProps) {
   }, [audioRecorder, navigation, startRecognition, t]);
 
   const isRecording = recorderState.isRecording || audioRecorder.isRecording;
+
+  useEffect(() => {
+    const metering = recorderState.metering;
+    const durationMillis = recorderState.durationMillis;
+
+    if (
+      !isRecording ||
+      typeof metering !== 'number' ||
+      !Number.isFinite(metering) ||
+      finishRequestedRef.current
+    ) {
+      return;
+    }
+
+    if (!speechDetectedRef.current) {
+      if (metering >= SPEECH_LEVEL_THRESHOLD_DB) {
+        speechStartedAtRef.current ??= durationMillis;
+
+        if (durationMillis - speechStartedAtRef.current >= MIN_SPEECH_DURATION_MS) {
+          speechDetectedRef.current = true;
+        }
+      } else {
+        speechStartedAtRef.current = null;
+      }
+
+      return;
+    }
+
+    if (metering > SILENCE_LEVEL_THRESHOLD_DB) {
+      silenceStartedAtRef.current = null;
+      return;
+    }
+
+    silenceStartedAtRef.current ??= durationMillis;
+
+    if (durationMillis - silenceStartedAtRef.current >= AUTO_STOP_SILENCE_DURATION_MS) {
+      void finishRecording();
+    }
+  }, [finishRecording, isRecording, recorderState.durationMillis, recorderState.metering]);
+
   const isPermissionBlocked = permissionState === 'denied' && !canAskAgain;
   const statusText = isRecording
     ? t('screens.captureVoice.recording')
